@@ -1,10 +1,9 @@
 ---
-// index.astro - Homepage with masonry-style CSS Grid
-// Displays all news articles in a 3-column responsive grid
+// news/index.astro - All news listing page
 import { getCollection } from "astro:content";
-import BaseLayout from "../layouts/BaseLayout.astro";
-import NewsCard from "../components/NewsCard.astro";
-import TagCloud from "../components/TagCloud.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import NewsCard from "../../components/NewsCard.astro";
+import TagCloud from "../../components/TagCloud.astro";
 
 // Fetch all news articles
 const allNews = await getCollection("news");
@@ -19,18 +18,17 @@ const allTags = [...new Set(allNews.flatMap((news) => news.data.tags))];
 ---
 
 <BaseLayout
-  title="Game News - Latest Gaming News & Updates"
-  description="Stay updated with the latest gaming news, reviews, and industry analysis"
+  title="All News - Game News"
+  description="Browse all gaming news articles"
 >
   <div class="container">
-    <!-- Hero Section -->
-    <section class="hero">
-      <h1>Latest Gaming News</h1>
-      <p class="hero-subtitle">
-        Stay informed with breaking news, in-depth reviews, and exclusive
-        insights from the gaming world
+    <!-- Header -->
+    <header class="page-header">
+      <h1>All News</h1>
+      <p class="page-description">
+        Browse our complete collection of gaming news and updates
       </p>
-    </section>
+    </header>
 
     <!-- News Grid -->
     <section class="news-section">
@@ -40,48 +38,42 @@ const allTags = [...new Set(allNews.flatMap((news) => news.data.tags))];
 
       {
         sortedNews.length === 0 && (
-          <p class="empty-state">No news articles found. Check back soon!</p>
+          <p class="empty-state">No news articles found.</p>
         )
       }
     </section>
 
     <!-- Tag Cloud -->
-    <TagCloud tags={allTags} title="Explore Topics" />
+    <TagCloud tags={allTags} title="Browse by Topic" />
   </div>
 </BaseLayout>
 
 <style>
-  /* Hero Section */
-  .hero {
+  .page-header {
     padding: var(--space-12) 0 var(--space-8);
     text-align: center;
     border-bottom: 2px solid var(--border-color);
     margin-bottom: var(--space-8);
   }
 
-  .hero h1 {
+  .page-header h1 {
     font-family: var(--font-serif);
-    font-size: var(--text-5xl);
+    font-size: var(--text-4xl);
     font-weight: 900;
-    line-height: 1.1;
     margin-bottom: var(--space-4);
-    letter-spacing: -0.02em;
   }
 
-  .hero-subtitle {
+  .page-description {
     font-size: var(--text-lg);
     color: var(--text-secondary);
     max-width: 600px;
     margin: 0 auto;
-    line-height: 1.6;
   }
 
-  /* News Section */
   .news-section {
     margin-bottom: var(--space-12);
   }
 
-  /* Empty State */
   .empty-state {
     text-align: center;
     padding: var(--space-16);
@@ -90,17 +82,16 @@ const allTags = [...new Set(allNews.flatMap((news) => news.data.tags))];
     font-style: italic;
   }
 
-  /* Responsive */
   @media (max-width: 768px) {
-    .hero {
+    .page-header {
       padding: var(--space-8) 0 var(--space-6);
     }
 
-    .hero h1 {
+    .page-header h1 {
       font-size: var(--text-3xl);
     }
 
-    .hero-subtitle {
+    .page-description {
       font-size: var(--text-base);
     }
   }

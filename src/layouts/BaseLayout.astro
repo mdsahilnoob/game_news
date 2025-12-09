@@ -1,24 +1,159 @@
 ---
-import Header from '../components/Header.astro'
-import Footer from '../components/Footer.astro'
-import '../styles/global.css'
-const {pageTitle} = Astro.props;
+// BaseLayout.astro - Main HTML shell with sticky header
+// Zero-JS architecture with semantic HTML
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Game News - Latest Gaming News & Updates",
+  description = "Your source for the latest gaming news, reviews, and industry updates",
+} = Astro.props;
 ---
+
+<!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <meta name="viewport" content="width=device-width" />
-        <meta name="generator" content={Astro.generator} />
-        <title>{pageTitle}</title>
-    </head>
-    <body>
-        <Header />
-        <h1>{pageTitle}</h1>
-        <slot />
-        <Footer />
-        <script>
-            import "../scripts/menu.js"
-        </script>
-    </body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+
+    <!-- Performance optimizations -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  </head>
+  <body>
+    <!-- Sticky Header -->
+    <header class="site-header">
+      <div class="container">
+        <a href="/" class="site-logo">GAME NEWS</a>
+
+        <nav aria-label="Main navigation">
+          <ul class="site-nav">
+            <li><a href="/">Home</a></li>
+            <li><a href="/news">All News</a></li>
+            <li><a href="/tags">Topics</a></li>
+            <li><a href="/about">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+      <slot />
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>About Game News</h3>
+            <p>
+              Your trusted source for gaming industry news, reviews, and
+              analysis.
+            </p>
+          </div>
+
+          <div class="footer-section">
+            <h3>Quick Links</h3>
+            <ul>
+              <li><a href="/">Home</a></li>
+              <li><a href="/news">All News</a></li>
+              <li><a href="/tags">Topics</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-section">
+            <h3>Follow Us</h3>
+            <ul>
+              <li>
+                <a
+                  href="https://twitter.com"
+                  target="_blank"
+                  rel="noopener noreferrer">Twitter</a>
+              </li>
+              <li>
+                <a
+                  href="https://youtube.com"
+                  target="_blank"
+                  rel="noopener noreferrer">YouTube</a>
+              </li>
+              <li>
+                <a
+                  href="https://discord.com"
+                  target="_blank"
+                  rel="noopener noreferrer">Discord</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-copyright">
+          © {new Date().getFullYear()} Game News. All rights reserved.
+        </div>
+      </div>
+    </footer>
+  </body>
 </html>
+
+<style>
+  /* Additional footer styling */
+  .footer-section h3 {
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-4);
+    color: var(--text-main);
+  }
+
+  .footer-section p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .footer-section ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .footer-section ul li {
+    margin-bottom: var(--space-2);
+  }
+
+  .footer-section a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color var(--transition);
+  }
+
+  .footer-section a:hover {
+    color: var(--accent-hover);
+  }
+
+  /* Responsive navigation */
+  @media (max-width: 768px) {
+    .site-header .container {
+      flex-direction: column;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      height: auto;
+    }
+
+    .site-header {
+      position: relative;
+      height: auto;
+    }
+
+    .site-nav {
+      flex-wrap: wrap;
+      gap: var(--space-3);
+    }
+  }
+</style>

@@ -1,0 +1,101 @@
+---
+// [slug].astro - Individual news article page
+// Dynamic route for each news article with related news section
+import { getCollection } from "astro:content";
+import type { GetStaticPaths } from "astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import NewsCard from "../../components/NewsCard.astro";
+
+export const getStaticPaths = (async () => {
+  const allNews = await getCollection("news");
+
+  return allNews.map((news) => ({
+    params: { slug: news.id },
+    props: { news },
+  }));
+}) satisfies GetStaticPaths;
+
+const { news } = Astro.props;
+const { title, description, pubDate, author, tags } = news.data;
+const { Content } = await news.render();
+
+// Format date
+const formattedDate = new Date(pubDate).toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+
+// Get related news (articles with matching tags, excluding current)
+const allNews = await getCollection("news");
+const relatedNews = allNews
+  .filter(
+    (item) =>
+      item.id !== news.id && item.data.tags.some((tag) => tags.includes(tag))
+  )
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+---
+
+<BaseLayout title={`${title} - Game News`} description={description}>
+  <article class="container-narrow">
+    <!-- Article Header -->
+    <header class="article-header">
+      <h1 class="article-title">{title}</h1>
+
+      <div class="article-meta">
+        <time datetime={pubDate.toISOString()} class="meta-text">
+          {formattedDate}
+        </time>
+        <span class="meta-text">{author}</span>
+      </div>
+
+      <ul class="article-tags">
+        {
+          tags.map((tag) => (
+            <li>
+              <a
+                href={`/tags/${tag.toLowerCase().replace(/\s+/g, "-")}`}
+                class="tag"
+              >
+                {tag}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </header>
+
+    <!-- Article Content -->
+    <div class="article-content">
+      <Content />
+    </div>
+  </article>
+
+  <!-- Related News Section -->
+  {
+    relatedNews.length > 0 && (
+      <section class="related-news">
+        <div class="container">
+          <h2>Related News</h2>
+          <div class="news-grid">
+            {relatedNews.map((news) => (
+              <NewsCard news={news} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  /* Article Tags */
+  .article-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    list-style: none;
+    margin-top: var(--space-6);
+  }
+</style>

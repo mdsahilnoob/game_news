@@ -1,29 +1,159 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import BlogPost from '../../components/BlogPost.astro';
+// [tag].astro - Tag filter page
+// Displays all news articles with a specific tag
 import { getCollection } from "astro:content";
+import type { GetStaticPaths } from "astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import NewsCard from "../../components/NewsCard.astro";
 
-export async function getStaticPaths() {
-    const allPosts = await getCollection("blog");
+export const getStaticPaths = (async () => {
+  const allNews = await getCollection("news");
 
-    const uniqueTags = [...new Set(allPosts.map((post) => post.data.tags).flat())];
+  // Get all unique tags
+  const uniqueTags = [...new Set(allNews.flatMap((news) => news.data.tags))];
 
-    return uniqueTags.map((tag) => {
-        const filteredPosts = allPosts.filter((post) => post.data.tags.includes(tag));
-        return {
-            params: { tag },
-            props: { posts: filteredPosts },
-        };
-    });
-}
+  return uniqueTags.map((tag) => {
+    const filteredNews = allNews.filter((news) => news.data.tags.includes(tag));
 
-const { tag } = Astro.params;
-const { posts } = Astro.props;
+    return {
+      params: { tag: tag.toLowerCase().replace(/\s+/g, "-") },
+      props: {
+        tag,
+        news: filteredNews,
+      },
+    };
+  });
+}) satisfies GetStaticPaths;
+
+const { tag, news } = Astro.props;
+
+// Sort by date (newest first)
+const sortedNews = news.sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
 ---
 
-<BaseLayout pageTitle={tag}>
-    <p>Posts tagged with {tag}</p>
-    <ul>
-        {posts.map((post) => <BlogPost url={`/posts/${post.id}/`} title={post.data.title}/>)}
-    </ul>
+<BaseLayout
+  title={`${tag} News - Game News`}
+  description={`Browse all gaming news articles tagged with ${tag}`}
+>
+  <div class="container">
+    <!-- Tag Header -->
+    <header class="tag-header">
+      <h1>
+        <span class="tag-label">Topic:</span>
+        {tag}
+      </h1>
+      <p class="tag-count meta-text">
+        {sortedNews.length}
+        {sortedNews.length === 1 ? "article" : "articles"}
+      </p>
+    </header>
+
+    <!-- News Grid -->
+    <section class="news-section">
+      <div class="news-grid">
+        {sortedNews.map((newsItem) => <NewsCard news={newsItem} />)}
+      </div>
+
+      {
+        sortedNews.length === 0 && (
+          <p class="empty-state">No articles found for this topic.</p>
+        )
+      }
+    </section>
+
+    <!-- Back Link -->
+    <nav class="tag-navigation">
+      <a href="/" class="back-link">← Back to all news</a>
+      <a href="/tags" class="back-link">Browse all topics</a>
+    </nav>
+  </div>
 </BaseLayout>
+
+<style>
+  /* Tag Header */
+  .tag-header {
+    padding: var(--space-12) 0 var(--space-8);
+    text-align: center;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: var(--space-8);
+  }
+
+  .tag-header h1 {
+    font-family: var(--font-serif);
+    font-size: var(--text-4xl);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: var(--space-3);
+  }
+
+  .tag-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    font-weight: 400;
+    margin-bottom: var(--space-2);
+  }
+
+  .tag-count {
+    color: var(--text-muted);
+  }
+
+  /* News Section */
+  .news-section {
+    margin-bottom: var(--space-12);
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: var(--space-16);
+    font-size: var(--text-lg);
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  /* Navigation */
+  .tag-navigation {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-8);
+    padding: var(--space-8) 0;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .back-link {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color var(--transition);
+  }
+
+  .back-link:hover {
+    color: var(--accent-hover);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .tag-header {
+      padding: var(--space-8) 0 var(--space-6);
+    }
+
+    .tag-header h1 {
+      font-size: var(--text-3xl);
+    }
+
+    .tag-navigation {
+      flex-direction: column;
+      gap: var(--space-4);
+      text-align: center;
+    }
+  }
+</style>
