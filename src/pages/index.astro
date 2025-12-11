@@ -32,21 +32,26 @@ const allTags = [...new Set(allNews.flatMap((news) => news.data.tags))];
       </p>
     </section>
 
-    <!-- News Grid -->
-    <section class="news-section">
-      <div class="news-grid">
-        {sortedNews.map((news) => <NewsCard news={news} />)}
-      </div>
+    <!-- Main Layout: Tags (25%) + News (75%) -->
+    <div class="main-layout">
+      <!-- Sidebar: Tag Cloud -->
+      <aside class="sidebar">
+        <TagCloud tags={allTags} title="Explore Topics" />
+      </aside>
 
-      {
-        sortedNews.length === 0 && (
-          <p class="empty-state">No news articles found. Check back soon!</p>
-        )
-      }
-    </section>
+      <!-- Main Content: News Grid -->
+      <section class="news-section">
+        <div class="news-grid">
+          {sortedNews.map((news) => <NewsCard news={news} />)}
+        </div>
 
-    <!-- Tag Cloud -->
-    <TagCloud tags={allTags} title="Explore Topics" />
+        {
+          sortedNews.length === 0 && (
+            <p class="empty-state">No news articles found. Check back soon!</p>
+          )
+        }
+      </section>
+    </div>
   </div>
 </BaseLayout>
 
@@ -76,9 +81,24 @@ const allTags = [...new Set(allNews.flatMap((news) => news.data.tags))];
     line-height: 1.6;
   }
 
+  /* Main Layout: Sidebar + Content */
+  .main-layout {
+    display: grid;
+    grid-template-columns: 25% 75%;
+    gap: var(--space-8);
+    margin-bottom: var(--space-12);
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-4));
+    height: fit-content;
+  }
+
   /* News Section */
   .news-section {
-    margin-bottom: var(--space-12);
+    min-width: 0; /* Prevent grid overflow */
   }
 
   /* Empty State */
@@ -91,6 +111,13 @@ const allTags = [...new Set(allNews.flatMap((news) => news.data.tags))];
   }
 
   /* Responsive */
+  @media (max-width: 1024px) {
+    .main-layout {
+      grid-template-columns: 30% 70%;
+      gap: var(--space-6);
+    }
+  }
+
   @media (max-width: 768px) {
     .hero {
       padding: var(--space-8) 0 var(--space-6);
@@ -102,6 +129,20 @@ const allTags = [...new Set(allNews.flatMap((news) => news.data.tags))];
 
     .hero-subtitle {
       font-size: var(--text-base);
+    }
+
+    .main-layout {
+      grid-template-columns: 1fr;
+      gap: var(--space-6);
+    }
+
+    .sidebar {
+      position: static;
+      order: 2;
+    }
+
+    .news-section {
+      order: 1;
     }
   }
 </style>

@@ -1,9 +1,9 @@
-import { glob } from "astro/loaders";
 import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders';
 
 // News Collection - Strict Schema for Editorial Content
-const newsCollection = defineCollection({
-  loader: glob({ pattern: '**/[^_]*.md', base: "./src/content/news" }),
+const news = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/news' }),
   schema: z.object({
     title: z.string().min(1, 'Title is required'),
     description: z.string().min(20, 'Description must be at least 20 characters'),
@@ -15,8 +15,8 @@ const newsCollection = defineCollection({
 });
 
 // Blog Collection - For legacy blog posts
-const blogCollection = defineCollection({
-  loader: glob({ pattern: '**/[^_]*.md', base: "./src/content/blog" }),
+const blog = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
   schema: z.object({
     title: z.string(),
     pubDate: z.coerce.date(),
@@ -31,6 +31,6 @@ const blogCollection = defineCollection({
 });
 
 export const collections = {
-  news: newsCollection,
-  blog: blogCollection,
+  news,
+  blog,
 };
